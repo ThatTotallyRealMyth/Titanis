@@ -158,7 +158,7 @@ namespace Titanis.Security.Ntlm
 						av.flags = (NtlmAuthFlags)reader.ReadInt32LE();
 						break;
 					case AvId.Timestamp:
-						av.timestamp = new DateTime(reader.ReadInt64LE());
+						av.timestamp = DateTime.FromFileTimeUtc(reader.ReadInt64LE());
 						break;
 					case AvId.SingleHost:
 						av.singleHost = reader.ReadSingleHostData(avh.avLen);

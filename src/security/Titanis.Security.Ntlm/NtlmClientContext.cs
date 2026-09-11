@@ -447,7 +447,7 @@ namespace Titanis.Security.Ntlm
 		{
 			NtlmChallenge challenge = NtlmChallenge.Parse(token);
 
-			this._state.clientTime = DateTime.Now;
+			this._state.clientTime = DateTime.UtcNow;
 			Ntlm.GetRandomData(this._state.randomKey.AsSpan());
 
 			this._state.UpdateWithChallenge(challenge);

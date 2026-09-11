@@ -161,7 +161,7 @@ namespace Titanis.Security.Ntlm
 					&& (string.IsNullOrEmpty(state.domainName) || avInfo.NbDomainName == state.domainName)
 					&& (string.IsNullOrEmpty(state.dnsServerName) || avInfo.DnsComputerName == state.dnsServerName)
 					&& (string.IsNullOrEmpty(state.dnsDomainName) || avInfo.DnsDomainName == state.dnsDomainName)
-					&& (new DateTime(msg.clientChallenge.time) == state.timestamp)
+					&& (DateTime.FromFileTimeUtc(msg.clientChallenge.time) == state.timestamp)
 					;
 				if (!isValid)
 					throw new AuthenticationException();

@@ -499,7 +499,7 @@ namespace Titanis.Security.Ntlm
 				{
 					Responserversion = Responserversion,
 					HiResponserversion = HiResponserversion,
-					time = time.Ticks,
+					time = time.ToFileTimeUtc(),
 					clientChallenge = clientChallenge,
 				};
 			}

@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using Titanis.Crypto;
+using Titanis.IO;
 using Titanis.Mocks;
 
 namespace Titanis.Security.Ntlm.Test
@@ -12,6 +14,53 @@ namespace Titanis.Security.Ntlm.Test
 	[TestClass]
 	public class NtlmTests
 	{
+		[TestMethod]
+		public void TestTimestampEncoding()
+		{
+			const long UnixEpochFileTime = 116444736000000000;
+			ByteWriter tempWriter = new ByteWriter(NtlmClientChallenge.StructSize + 4);
+			Ntlm.BuildTempV2(
+				tempWriter,
+				DateTime.UnixEpoch,
+				TestInputValues.ClientChallenge,
+				ReadOnlySpan<byte>.Empty);
+
+			long actual = BinaryPrimitives.ReadInt64LittleEndian(
+				tempWriter.GetData().Span.Slice(8, sizeof(long)));
+
+			Assert.AreEqual(UnixEpochFileTime, actual);
+		}
+
+		[TestMethod]
+		public void TestAvTimestampRoundTrip()
+		{
+			NtlmAvInfo targetInfo = new NtlmAvInfo
+			{
+				timestamp = DateTime.UnixEpoch
+			};
+			NtlmChallenge challenge = new NtlmChallenge
+			{
+				hdr = new NtlmChallengeHeader
+				{
+					signature = NegotiateHeader.ValidSignature,
+					messageType = NtlmMessageType.Challenge,
+					negotiateFlags = NegotiateFlags.S_NegotiateTargetInfo,
+					targetInfo = new NtlmStringInfo(
+						(ushort)targetInfo.Measure(),
+						NtlmChallengeHeader.StructSize)
+				},
+				targetInfo = targetInfo
+			};
+			ByteWriter writer = new ByteWriter(NtlmChallengeHeader.StructSize + targetInfo.Measure());
+			writer.WriteChallenge(challenge);
+			long encodedTimestamp = BinaryPrimitives.ReadInt64LittleEndian(
+				writer.GetData().Span.Slice(NtlmChallengeHeader.StructSize + 4, sizeof(long)));
+
+			NtlmChallenge actual = NtlmChallenge.Parse(writer.GetData().Span);
+
+			Assert.AreEqual(116444736000000000, encodedTimestamp);
+			Assert.AreEqual(DateTime.UnixEpoch, actual.targetInfo?.timestamp);
+		}
 
 		// [MS-NLMP] § 4.2.2.1.1 - LMOWFv1()
 		[TestMethod("[MS-NLMP] § 4.2.2.1.1 - LMOWFv1()")]
@@ -244,6 +293,7 @@ namespace Titanis.Security.Ntlm.Test
 			ref var state = ref context.GetState();
 			state = new NtlmAuthContextState
 			{
+				clientTime = TestInputValues.Time,
 				negotiateFlags = challengeFlags,
 				challengeFlags = challengeFlags,
 				negAuthFlags = challengeFlags,

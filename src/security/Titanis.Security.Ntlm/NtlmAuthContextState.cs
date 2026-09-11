@@ -44,7 +44,7 @@ namespace Titanis.Security.Ntlm
 			this.negAuthFlags = auth.hdr.negotiatedFlags;
 			this.challengeFromClient = auth.clientChallenge.clientChallenge;
 			this.clientVersion = auth.hdr.version;
-			this.timestamp = DateTime.FromFileTime(auth.clientChallenge.time);
+			this.timestamp = DateTime.FromFileTimeUtc(auth.clientChallenge.time);
 		}
 		internal void UpdateWithChallenge(NtlmChallenge msg)
 		{

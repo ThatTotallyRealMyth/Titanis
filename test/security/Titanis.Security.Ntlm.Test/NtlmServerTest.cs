@@ -314,7 +314,7 @@ namespace Titanis.Security.Ntlm.Test
 			serverContext.SetAuthState(
 				NegotiateFlags.A_NegotiateUnicode,
 				ServerChallenge,
-				new DateTime(Timestamp)
+				DateTime.FromFileTimeUtc(Timestamp)
 				);
 			serverContext.Accept(AuthPacket);
 

@@ -19,7 +19,7 @@ namespace Titanis.Security.Ntlm.Test
 			0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55,
 			0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55
 		};
-		internal static readonly DateTime Time = new DateTime(0);
+		internal static readonly DateTime Time = DateTime.FromFileTimeUtc(0);
 		internal const ulong ClientChallenge = 0xAAAAAAAA_AAAAAAAA;
 		internal const ulong ServerChallenge = 0xEFCDAB89_67452301;
 
